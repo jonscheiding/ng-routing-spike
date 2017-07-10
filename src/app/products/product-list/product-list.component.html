@@ -1,0 +1,8 @@
+<div style="width: 50%; float: left;">
+  <div *ngFor="let product of products">
+    <a [routerLink]="[product.id]">{{product.productName}}</a>
+  </div>
+</div>
+<div style="width: 50%; float: left;">
+  <router-outlet></router-outlet>
+</div>
