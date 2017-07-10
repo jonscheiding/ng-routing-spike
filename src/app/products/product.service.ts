@@ -17,22 +17,21 @@ export class ProductService {
 
     productUpdated = new Subject<IProduct>();
     products: IProduct[];
+    productCategory: string;
 
     constructor(private http: Http) { }
 
-    getProducts(): Observable<IProduct[]> {
-      if (this.products) {
+    getProducts(productCategory: string): Observable<IProduct[]> {
+      if (this.products && this.productCategory === productCategory) {
         return Observable.of(this.products)
       };
 
-      return this.http.get(this.baseUrl)
-          .map(this.extractData)
-          .map(data => {
-            console.log('getProducts: ' + JSON.stringify(data));
-            this.products = data;
-            return this.products;
-          })
-          .catch(this.handleError);
+      return this.getProductsInternal(productCategory)
+        .do(data => {
+          console.log('getProducts: ' + JSON.stringify(data));
+          this.products = data;
+          this.productCategory = productCategory;
+        });
     }
 
     getProduct(id: number): Observable<IProduct> {
@@ -95,13 +94,21 @@ export class ProductService {
         Object.assign(product, productResult);
       });
 
-      this.http.get(this.baseUrl)
-        .map(this.extractData)
+      this.getProductsInternal(this.productCategory)
         .subscribe(data => {
           for (let i = 0; i < data.length; i++) {
             this.products[i] = data[i];
           }
         });
+    }
+
+    private getProductsInternal(productCategory: string): Observable<IProduct[]> {
+      return this.http.get(this.baseUrl)
+          .map(this.extractData)
+          .map((data: IProduct[]) => {
+            return data.filter(p => p.category === productCategory);
+          })
+          .catch(this.handleError);
     }
 
     private handleError(error: Response): Observable<any> {

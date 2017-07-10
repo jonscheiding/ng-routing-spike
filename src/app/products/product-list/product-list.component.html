@@ -1,3 +1,10 @@
+<div>
+  <a [routerLink]="['/products', 'Garden']">Garden</a>
+  <a [routerLink]="['/products', 'Toolbox']">Toolbox</a>
+  <a [routerLink]="['/products', 'Gaming']">Gaming</a>
+  <br />
+  <br />
+</div>
 <div style="width: 50%; float: left;">
   <div *ngFor="let product of products">
     <a [routerLink]="[product.id]">{{product.productName}}</a>

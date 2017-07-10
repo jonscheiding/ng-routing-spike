@@ -14,7 +14,7 @@ import { ProductEditorComponent } from './product-editor/product-editor.componen
     CommonModule,
     FormsModule,
     RouterModule.forChild([
-      { path: 'products', component: ProductListComponent,
+      { path: 'products/:productCategory', component: ProductListComponent,
         resolve: {
           products: ProductListResolverService
         },
