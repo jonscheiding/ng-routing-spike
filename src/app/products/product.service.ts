@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Http, Response, Headers, RequestOptions } from '@angular/http';
 
 import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/observable/throw';
@@ -14,13 +15,24 @@ import { IProduct } from './product';
 export class ProductService {
     private baseUrl = 'api/products';
 
+    productUpdated = new Subject<IProduct>();
+    products: IProduct[];
+
     constructor(private http: Http) { }
 
     getProducts(): Observable<IProduct[]> {
-        return this.http.get(this.baseUrl)
-            .map(this.extractData)
-            .do(data => console.log('getProducts: ' + JSON.stringify(data)))
-            .catch(this.handleError);
+      if (this.products) {
+        return Observable.of(this.products)
+      };
+
+      return this.http.get(this.baseUrl)
+          .map(this.extractData)
+          .map(data => {
+            console.log('getProducts: ' + JSON.stringify(data));
+            this.products = data;
+            return this.products;
+          })
+          .catch(this.handleError);
     }
 
     getProduct(id: number): Observable<IProduct> {
@@ -64,15 +76,32 @@ export class ProductService {
 
     private updateProduct(product: IProduct, options: RequestOptions): Observable<IProduct> {
         const url = `${this.baseUrl}/${product.id}`;
-        return this.http.put(url, product, options)
+        return this.http.put(url, {...product, releaseDate: new Date().toString()}, options)
             .map(() => product)
-            .do(data => console.log('updateProduct: ' + JSON.stringify(data)))
+            .do(data => {
+              console.log('updateProduct: ' + JSON.stringify(data));
+              this.reloadProduct(product);
+            })
             .catch(this.handleError);
     }
 
     private extractData(response: Response) {
         const body = response.json();
         return body.data || {};
+    }
+
+    private reloadProduct(product: IProduct) {
+      this.getProduct(product.id).subscribe(productResult => {
+        Object.assign(product, productResult);
+      });
+
+      this.http.get(this.baseUrl)
+        .map(this.extractData)
+        .subscribe(data => {
+          for (let i = 0; i < data.length; i++) {
+            this.products[i] = data[i];
+          }
+        });
     }
 
     private handleError(error: Response): Observable<any> {
