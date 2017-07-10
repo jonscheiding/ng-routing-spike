@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { NgModule, Component } from '@angular/core';
 import { HttpModule } from '@angular/http';
 import { RouterModule } from '@angular/router';
 
@@ -10,9 +10,12 @@ import { AppComponent } from './app.component';
 
 import { ProductsModule } from './products/products.module';
 
+@Component({ template: '' })
+export class LoadingComponent {}
+
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent, LoadingComponent
   ],
   imports: [
     BrowserModule,
@@ -20,7 +23,8 @@ import { ProductsModule } from './products/products.module';
     InMemoryWebApiModule.forRoot(ProductData, { delay: 500 }),
     ProductsModule,
     RouterModule.forRoot([
-      { path: '', redirectTo: 'products', pathMatch: 'full' }
+      { path: '', redirectTo: 'products', pathMatch: 'full' },
+      { path: 'loading', component: LoadingComponent }
     ])
   ],
   providers: [],
