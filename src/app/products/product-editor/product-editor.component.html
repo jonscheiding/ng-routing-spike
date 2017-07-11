@@ -1,4 +1,3 @@
-<p>
-  <input type="text" [(ngModel)] = product.productName name="productName" />
-  <button (click)="saveProduct()">Save</button>
-</p>
+<input type="text" [(ngModel)] = currentProduct.product.productName name="productName" />
+<button (click)="saveProduct()">Save</button>
+<div>Last Updated: {{currentProduct.product.releaseDate}}</div>

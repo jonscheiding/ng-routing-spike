@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Http, Response, Headers, RequestOptions } from '@angular/http';
 
 import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/observable/throw';
@@ -10,9 +11,18 @@ import 'rxjs/add/observable/of';
 
 import { IProduct } from './product';
 
+export class ProductCreated { id: number };
+export class ProductUpdated { id: number };
+
 @Injectable()
 export class ProductService {
     private baseUrl = 'api/products';
+
+    private eventsInternal = new Subject<any>();
+
+    get events(): Observable<any> {
+      return this.eventsInternal.asObservable();
+    }
 
     constructor(private http: Http) { }
 
@@ -58,15 +68,21 @@ export class ProductService {
         product.id = undefined;
         return this.http.post(this.baseUrl, product, options)
             .map(this.extractData)
-            .do(data => console.log('createProduct: ' + JSON.stringify(data)))
+            .do(data => {
+              console.log('createProduct: ' + JSON.stringify(data));
+              this.eventsInternal.next(<ProductCreated>{ id: data.id })
+            })
             .catch(this.handleError);
     }
 
     private updateProduct(product: IProduct, options: RequestOptions): Observable<IProduct> {
         const url = `${this.baseUrl}/${product.id}`;
-        return this.http.put(url, product, options)
+        return this.http.put(url, {...product, releaseDate: new Date().toString()}, options)
             .map(() => product)
-            .do(data => console.log('updateProduct: ' + JSON.stringify(data)))
+            .do(data => {
+              console.log('updateProduct: ' + JSON.stringify(data));
+              this.eventsInternal.next(<ProductUpdated>{ id: data.id })
+            })
             .catch(this.handleError);
     }
 

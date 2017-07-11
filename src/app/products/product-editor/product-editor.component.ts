@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { IProduct } from '../product';
+import { CurrentProduct } from '../current-product';
 import { ProductService } from '../product.service';
 
 @Component({
@@ -10,15 +10,15 @@ import { ProductService } from '../product.service';
   styleUrls: ['./product-editor.component.css']
 })
 export class ProductEditorComponent implements OnInit {
-  product: IProduct;
+  currentProduct: CurrentProduct;
 
   constructor(private route: ActivatedRoute, private productService: ProductService) { }
 
   ngOnInit() {
-    this.route.data.subscribe(data => this.product = data['product']);
+    this.route.data.subscribe(data => this.currentProduct = data['product']);
   }
 
   saveProduct(): void {
-    this.productService.saveProduct(this.product).subscribe();
+    this.productService.saveProduct(this.currentProduct.product).subscribe();
   }
 }
