@@ -3,6 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
+import { SharedModule } from '../shared/shared.module';
+import { NullComponent } from '../shared/null.component';
+
 import { ProductList } from './product-list';
 import { CurrentProduct } from './current-product';
 import { ProductService } from './product.service';
@@ -16,9 +19,10 @@ import { RedirectToFirstCategoryGuard } from './redirect-to-first-category.guard
   imports: [
     CommonModule,
     FormsModule,
+    SharedModule,
     RouterModule.forChild([
       { path: 'products', children: [
-        { path: '', canActivate: [RedirectToFirstCategoryGuard], children: [] },
+        { path: '', canActivate: [RedirectToFirstCategoryGuard], component: NullComponent },
         { path: ':category', component: ProductListComponent,
           resolve: {
             products: ProductListResolverService
