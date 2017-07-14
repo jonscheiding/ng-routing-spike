@@ -28,6 +28,6 @@ export class AppComponent {
   }
 
   reload() {
-    this.resolverRefresh.refreshResolvers((key) => key === 'products');
+    this.resolverRefresh.refreshResolvers((key) => key === 'products' || key === 'product');
   }
 }
