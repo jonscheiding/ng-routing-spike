@@ -16,7 +16,7 @@ export class AppComponent {
 
   title = 'app';
 
-  constructor(private router: Router, private resolverRefresh: RouteResolverRefreshService) {
+  constructor(private router: Router) {
     this.router.events.subscribe(e => this.onRouterEvent(e));
   }
 
@@ -25,9 +25,5 @@ export class AppComponent {
     if (e instanceof NavigationEnd && this.firstRouterState == null) {
       this.firstRouterState = this.router.routerState;
     }
-  }
-
-  reload() {
-    this.resolverRefresh.refreshResolvers((key) => key === 'products' || key === 'product');
   }
 }

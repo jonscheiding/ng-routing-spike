@@ -13,7 +13,6 @@ export class ProductListResolverService implements Resolve<IProduct[]> {
   constructor(private productService: ProductService, private router: Router) { }
 
   resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<IProduct[]> {
-    console.log(route);
     return this.productService.getProducts();
   }
 }

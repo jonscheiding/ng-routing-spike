@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Http, Response, Headers, RequestOptions } from '@angular/http';
 
 import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/observable/throw';
@@ -13,6 +14,11 @@ import { IProduct } from './product';
 @Injectable()
 export class ProductService {
     private baseUrl = 'api/products';
+    private productsChangedInternal = new Subject<void>();
+
+    get productsChanged(): Observable<void> {
+      return this.productsChangedInternal.asObservable();
+    }
 
     constructor(private http: Http) { }
 
@@ -41,6 +47,7 @@ export class ProductService {
         const url = `${this.baseUrl}/${id}`;
         return this.http.delete(url, options)
             .do(data => console.log('deleteProduct: ' + JSON.stringify(data)))
+            .do(() => this.productsChangedInternal.next())
             .catch(this.handleError);
     }
 
@@ -51,7 +58,8 @@ export class ProductService {
         if (product.id === 0) {
             return this.createProduct(product, options);
         }
-        return this.updateProduct(product, options);
+        return this.updateProduct(product, options)
+          .do(() => this.productsChangedInternal.next());
     }
 
     private createProduct(product: IProduct, options: RequestOptions): Observable<IProduct> {
