@@ -1,3 +1,4 @@
+import { RouteResolverRefreshService } from './../route-resolver-refresh.service';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -31,4 +32,13 @@ import { ProductEditorComponent } from './product-editor/product-editor.componen
   providers: [ProductService, ProductListResolverService, ProductResolverService],
   declarations: [ProductListComponent, ProductEditorComponent]
 })
-export class ProductsModule { }
+export class ProductsModule {
+  constructor(
+    private resolverRefresh: RouteResolverRefreshService,
+    private productService: ProductService) {
+
+    this.productService.productsChanged.subscribe(() => {
+      this.resolverRefresh.refreshResolvers(key => key === 'product' || key === 'products');
+    });
+  }
+}
