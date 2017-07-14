@@ -15,7 +15,10 @@ export class ProductEditorComponent implements OnInit {
   constructor(private route: ActivatedRoute, private productService: ProductService) { }
 
   ngOnInit() {
-    this.route.data.subscribe(data => this.product = data['product']);
+    this.route.data.subscribe(data => {
+      console.log(`Data was updated for ${this.constructor.name}.`);
+      this.product = data['product'];
+    });
   }
 
   saveProduct(): void {

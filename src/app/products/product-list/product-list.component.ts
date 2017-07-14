@@ -15,6 +15,7 @@ export class ProductListComponent implements OnInit {
 
   ngOnInit() {
     this.route.data.subscribe(data => {
+      console.log(`Data was updated for ${this.constructor.name}.`);
       this.products = data['products'];
     });
   }

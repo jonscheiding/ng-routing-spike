@@ -1,3 +1,4 @@
+import { RouteResolverRefreshService } from './route-resolver-refresh.service';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { HttpModule } from '@angular/http';
@@ -23,7 +24,7 @@ import { ProductsModule } from './products/products.module';
       { path: '', redirectTo: 'products', pathMatch: 'full' }
     ])
   ],
-  providers: [],
+  providers: [RouteResolverRefreshService],
   exports: [RouterModule],
   bootstrap: [AppComponent]
 })

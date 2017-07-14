@@ -1,3 +1,4 @@
+import { RouteResolverRefreshService } from './route-resolver-refresh.service';
 import { Router, Event, RouterState, NavigationEnd, ActivatedRoute, Resolve } from '@angular/router';
 import { Component, Injector } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
@@ -15,7 +16,7 @@ export class AppComponent {
 
   title = 'app';
 
-  constructor(private router: Router, private resolver: ProductListResolverService) {
+  constructor(private router: Router, private resolverRefresh: RouteResolverRefreshService) {
     this.router.events.subscribe(e => this.onRouterEvent(e));
   }
 
@@ -27,6 +28,6 @@ export class AppComponent {
   }
 
   reload() {
-    this.resolver.refresh();
+    this.resolverRefresh.refreshResolvers((key) => key === 'products');
   }
 }
