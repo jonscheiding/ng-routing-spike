@@ -1,10 +1,17 @@
 import { Injectable, Injector } from '@angular/core';
-import { ActivatedRoute, ActivatedRouteSnapshot, Router, Data, Resolve } from '@angular/router';
+import { ActivatedRoute, ActivatedRouteSnapshot, Router, Data, Resolve, RouterStateSnapshot } from '@angular/router';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
-export type ShouldRefreshDelegate = (key: string, resolver: any, route: ActivatedRouteSnapshot) => boolean;
+export interface ShouldRefreshOptions {
+  key: string,
+  resolver: any,
+  route: ActivatedRouteSnapshot,
+  routerState: RouterStateSnapshot
+}
+
+export type ShouldRefreshDelegate = (options: ShouldRefreshOptions) => boolean;
 
 @Injectable()
 export class RouteResolverRefreshService {
@@ -46,7 +53,12 @@ export class RouteResolverRefreshService {
     const resolve = (route.routeConfig || {}).resolve || {};
 
     const refreshObservables = Object.keys(resolve)
-      .filter(key => shouldRefresh(key, resolve[key], route.snapshot))
+      .filter(key => shouldRefresh({
+        key,
+        resolver: resolve[key],
+        route: route.snapshot,
+        routerState: this.router.routerState.snapshot
+      }))
       .map(key => this
         .executeResolver(resolve[key], route)
         .do(result => refreshedData[key] = result)
@@ -63,18 +75,16 @@ export class RouteResolverRefreshService {
 
   private executeResolver(resolveConfig: any, route: ActivatedRoute) {
     //
-    // TODO: Update to handle lazy loading (we can't use this.injector, we have to find the right)
-    // one for the module.  See Angular router source for details.
+    // TODO: Replicate logic from @angular/router.
+    //  - Update to handle lazy loading (we can't use this.injector, we have to find the right)
+    //    one for the module.  See Angular router source for details.
+    //  - We can't assume that all resolvers are impls of Resolve.  They could just be functions.
+    //    We need to check the value we got and call it appropriately.
+    //  - We can't assume that the resolver returns an Observable.  We need to check
+    //    if we got a value and if we did, wrap it in Observable.of.
     //
-    // TODO: We can't assume that all resolvers are impls of Resolve.  They could just be functions.
-    // We need to check the value we got and call it appropriately.
-    //
-    const resolver = <Resolve<any>>this.injector.get(resolveConfig);
 
-    //
-    // TODO: We can't assume that the resolver returns an Observable.  We need to check
-    // if we got a value and if we did, wrap it in Observable.of.
-    //
+    const resolver = <Resolve<any>>this.injector.get(resolveConfig);
     return <Observable<any>>resolver.resolve(route.snapshot, this.router.routerState.snapshot);
   }
 }

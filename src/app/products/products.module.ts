@@ -38,7 +38,7 @@ export class ProductsModule {
     private productService: ProductService) {
 
     this.productService.productsChanged.subscribe(() => {
-      this.resolverRefresh.refreshResolvers(key => key === 'product' || key === 'products');
+      this.resolverRefresh.refreshResolvers(o => o.key === 'product' || o.key === 'products');
     });
   }
 }
