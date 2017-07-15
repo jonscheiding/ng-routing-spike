@@ -76,8 +76,8 @@ export class RouteResolverRefreshService {
   private executeResolver(resolveConfig: any, route: ActivatedRoute) {
     //
     // TODO: Replicate logic from @angular/router.
-    //  - Update to handle lazy loading (we can't use this.injector, we have to find the right)
-    //    one for the module.  See Angular router source for details.
+    //  - Update to handle lazy loading (we can't use this.injector, we have to find the right
+    //    Injector instance for the module).  See Angular router source for details.
     //  - We can't assume that all resolvers are impls of Resolve.  They could just be functions.
     //    We need to check the value we got and call it appropriately.
     //  - We can't assume that the resolver returns an Observable.  We need to check
