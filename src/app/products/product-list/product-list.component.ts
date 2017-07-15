@@ -9,14 +9,33 @@ import { IProduct } from '../product';
   styleUrls: ['./product-list.component.css']
 })
 export class ProductListComponent implements OnInit {
-  products: IProduct[];
-
   constructor(private route: ActivatedRoute) { }
 
   ngOnInit() {
-    this.route.data.subscribe(data => {
-      console.log(`Data was updated for ${this.constructor.name}.`);
-      this.products = data['products'];
-    });
+    console.log(this.route.children);
+    //
+    // If the URL is /products, then this.route has no children.
+    // And if we later navigate to /products/:productId, this
+    // component's ngOnInit doesn't get called again.
+    //
+    // Without thinking about it, I was assuming that meant I
+    // could never get to the children from this.route.
+    //
+  }
+
+  get products(): IProduct[] {
+    return this.route.snapshot.data['products'];
+  }
+
+  get selectedProduct(): IProduct {
+    if(this.route.firstChild == null) {
+      return null;
+    }
+
+    //
+    // But the route object that we got passed will have children
+    // eventually, and change detection will handle that
+    //
+    return this.route.firstChild.snapshot.data['product'];
   }
 }
