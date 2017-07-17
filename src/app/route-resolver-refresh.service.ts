@@ -2,6 +2,8 @@ import { Injectable, Injector } from '@angular/core';
 import { ActivatedRoute, ActivatedRouteSnapshot, Router, Data, Resolve, RouterStateSnapshot } from '@angular/router';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
+import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/observable/forkJoin';
 
 export interface ShouldRefreshOptions {
@@ -15,20 +17,35 @@ export type ShouldRefreshDelegate = (options: ShouldRefreshOptions) => boolean;
 
 @Injectable()
 export class RouteResolverRefreshService {
+  private resolversRefreshedSubject = new Subject<void>();
+
   constructor(private router: Router, private injector: Injector) { }
 
-  refreshResolvers(shouldRefresh: ShouldRefreshDelegate) {
-    this.refreshResolversInternal(shouldRefresh, this.router.routerState.root);
+  get resolversRefreshed(): Observable<void> {
+    return this.resolversRefreshedSubject.asObservable();
   }
 
-  private refreshResolversInternal(shouldRefresh: ShouldRefreshDelegate, route: ActivatedRoute, data: Data = {}) {
-    this.getRefreshedData(shouldRefresh, route, data)
-      .subscribe(refreshedData => {
+  refreshResolvers(shouldRefresh: ShouldRefreshDelegate) {
+    this.refreshResolversInternal(shouldRefresh, this.router.routerState.root)
+      .subscribe(() => this.resolversRefreshedSubject.next());
+  }
+
+  private refreshResolversInternal(shouldRefresh: ShouldRefreshDelegate, route: ActivatedRoute, data: Data = {})
+    : Observable<any> {
+
+    return this.getRefreshedData(shouldRefresh, route, data)
+      .mergeMap(refreshedData => {
         this.pushUpdatedDataToRoute(refreshedData, route);
 
-        for (const child of route.children) {
-          this.refreshResolversInternal(shouldRefresh, child, refreshedData);
+        const childObservables = route.children.map(
+          child => this.refreshResolversInternal(shouldRefresh, child, refreshedData)
+        );
+
+        if(childObservables.length === 0) {
+          return Observable.of([]);
         }
+
+        return Observable.forkJoin(childObservables);
       });
   }
 

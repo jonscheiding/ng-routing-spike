@@ -1,3 +1,4 @@
+import { RouteResolverRefreshService } from './route-resolver-refresh.service';
 import { IBreadcrumb } from './breadcrumb.service';
 import { Router, Params, NavigationEnd, ActivatedRouteSnapshot, PRIMARY_OUTLET } from '@angular/router';
 import { Injectable } from '@angular/core';
@@ -15,9 +16,12 @@ export const ROUTE_DATA_BREADCRUMB = 'breadcrumb';
 export class BreadcrumbService {
   breadcrumbs = new Array<IBreadcrumb>();
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private resolverRefresh: RouteResolverRefreshService) {
     this.router.events
       .filter(e => e instanceof NavigationEnd)
+      .subscribe(() => this.updateBreadcrumbs());
+
+    this.resolverRefresh.resolversRefreshed
       .subscribe(() => this.updateBreadcrumbs());
   }
 
