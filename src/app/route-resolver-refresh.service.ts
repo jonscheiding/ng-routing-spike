@@ -43,7 +43,10 @@ export class RouteResolverRefreshService {
     // could change in future versions of Angular.
     //
     const subject = <BehaviorSubject<Data>>route.data;
-    subject.next({...route.snapshot.data, ...data});
+    const updatedData = {...route.snapshot.data, ...data};
+
+    route.snapshot.data = updatedData;
+    subject.next(updatedData);
   }
 
   private getRefreshedData(shouldRefresh: ShouldRefreshDelegate, route: ActivatedRoute, data: Data)
