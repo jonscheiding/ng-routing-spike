@@ -1,3 +1,10 @@
 <div>
+  <div>
+    <span *ngFor="let breadcrumb of breadcrumbs">
+      <a [routerLink]="[breadcrumb.url, breadcrumb.params]">
+        {{breadcrumb.label}}</a>
+    </span>
+  </div>
+  <hr>
   <router-outlet></router-outlet>
 </div>
